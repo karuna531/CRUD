@@ -33,6 +33,13 @@ function App() {
       const res = await axios.get(`${API}/posts`)
       //console.log(res.data);
       setMyData(res.data)
+      //for update purpose
+      // setFormData({
+      //   userId: res[0].userId,
+      //   id: res[0].id,
+      //   title: res[0].title,
+      //   body: res[0].body
+      // })
 
     }
     catch (error) {
@@ -57,7 +64,7 @@ function App() {
     //const data = { userId, id, title, body };
     var resp = await axios.post(`${API}/posts`, formData).then((res) => {
       console.warn("Posting data =", res)
-      setFormData([...myData, res]);
+      setMyData([...myData, res.data]);
     })
 
 
@@ -67,11 +74,28 @@ function App() {
     // //axios.post(`${API}, data `)
 
   }
-  // function updatePost() {
-  //  axios.put(`${API}/posts/${id}`, formData).then((response) => {
-  //  setPost(response.data);
-  //     });
-  // }
+  function updatePost(id) {
+    //console.warn(id, "object =", myData[id - 1]);
+    let item = myData[id - 1];
+    setFormData(
+      {
+        userId: item.userId,
+        id: item.id,
+        title: item.title,
+        body: item.body
+      }
+
+    )
+    console.warn(item.title);
+  }
+  function Edit() {
+    console.warn(formData.id)
+    // axios.put(`${API}/posts/${id}`, formData)
+    //   .then((response) => {
+    //     setMyData(response.data);
+    //   });
+
+  }
 
 
   const Delete = (id) => {
@@ -117,14 +141,15 @@ function App() {
       {/* <Button variant="primary" onClick={addPost}>View</Button> */}
       <form>
         <label>userId</label><br />
-        <input type="text" name='userId' value={formData.userId} onChange={changeHandler} /> <br /><br />
+        <input type="text" name='userId' value={formData.userId || ""} onChange={changeHandler} /> <br /><br />
         <label>Id</label><br />
-        <input type="text" name='id' value={formData.id} onChange={changeHandler} /> <br /><br />
+        <input type="text" name='id' value={formData.id || ""} onChange={changeHandler} /> <br /><br />
         <label>Title</label><br />
-        <input type="text" name='title' value={formData.title} onChange={changeHandler} /> <br /><br />
+        <input type="text" name='title' value={formData.title || ""} onChange={changeHandler} /> <br /><br />
         <label>Body</label><br />
-        <input type="text" name='body' value={formData.body} onChange={changeHandler} /> <br /><br />
+        <input type="text" name='body' value={formData.body || ""} onChange={changeHandler} /> <br /><br />
         <button type='button' onClick={addPost}>Save</button>
+        <button type='button' onClick={Edit}>Edit</button>
       </form>
       {/* try */}
       <Table striped bordered hover size="sm">
@@ -147,8 +172,8 @@ function App() {
                 <td>{item.title.slice(0, 7)}</td>
                 <td>{item.body.slice(0, 10)}</td>
                 <td>
-                  <Button variant="primary" >View</Button>
-                  <Button variant="success" >Edit</Button>
+
+                  <Button variant="success" onClick={() => updatePost(item.id)}>Edit</Button>&nbsp; &nbsp;
                   <Button variant="danger" onClick={() => Delete(item.id)} >Remove</Button>
                 </td>
 
