@@ -9,6 +9,9 @@ import "./App.css";
 function App() {
   const [myData, setMyData] = useState([]);
   const [isError, setIsError] = useState([]);
+  const [btnname, setBtnName] = useState("Save");
+  const [documentmode, setDocumentMode] = useState("add");
+  const [updateData, setUpdateData] = useState([]);
   const API = 'https://jsonplaceholder.typicode.com';
 
   const [formData, setFormData] = useState({
@@ -33,13 +36,6 @@ function App() {
       const res = await axios.get(`${API}/posts`)
       //console.log(res.data);
       setMyData(res.data)
-      //for update purpose
-      // setFormData({
-      //   userId: res[0].userId,
-      //   id: res[0].id,
-      //   title: res[0].title,
-      //   body: res[0].body
-      // })
 
     }
     catch (error) {
@@ -61,11 +57,38 @@ function App() {
   // }
   const addPost = async (e) => {
     e.preventDefault();
-    //const data = { userId, id, title, body };
-    var resp = await axios.post(`${API}/posts`, formData).then((res) => {
-      console.warn("Posting data =", res)
-      setMyData([...myData, res.data]);
-    })
+    if (documentmode == "add") {
+
+      //const data = { userId, id, title, body };
+      var resp = await axios.post(`${API}/posts`, formData).then((res) => {
+        console.warn("Posting data =", res)
+        setMyData([...myData, res.data]);
+      })
+
+    }
+    else if (documentmode == "edit") {
+      console.warn("update=", formData);
+      const item = formData.id;
+      console.warn(item);
+
+      // const data =
+      // {
+      //   userId: item.userId,
+      //   id: item.id,
+      //   title: item.title,
+      //   body: item.body
+      // }
+      // setUpdateData(...updateData, data);
+
+      axios.put(`${API}/posts/${item}`, formData)
+        .then((response) => {
+          console.log(typeof (response.data));
+          const tempData = [response.data];
+          setMyData(tempData);
+        });
+
+    }
+
 
 
 
@@ -75,6 +98,8 @@ function App() {
 
   }
   function updatePost(id) {
+    setBtnName("Update");
+    setDocumentMode("edit");
     //console.warn(id, "object =", myData[id - 1]);
     let item = myData[id - 1];
     setFormData(
@@ -88,14 +113,13 @@ function App() {
     )
     console.warn(item.title);
   }
-  function Edit() {
-    console.warn(formData.id)
-    // axios.put(`${API}/posts/${id}`, formData)
-    //   .then((response) => {
-    //     setMyData(response.data);
-    //   });
+  // function Edit() {
+  //   // axios.put(`${API}/posts/${id}`, formData)
+  //   //   .then((response) => {
+  //   //     setMyData(response.data);
+  //   //   });
 
-  }
+  // }
 
 
   const Delete = (id) => {
@@ -148,8 +172,8 @@ function App() {
         <input type="text" name='title' value={formData.title || ""} onChange={changeHandler} /> <br /><br />
         <label>Body</label><br />
         <input type="text" name='body' value={formData.body || ""} onChange={changeHandler} /> <br /><br />
-        <button type='button' onClick={addPost}>Save</button>
-        <button type='button' onClick={Edit}>Edit</button>
+        <button type='button' onClick={addPost}>{btnname}</button>
+
       </form>
       {/* try */}
       <Table striped bordered hover size="sm">
