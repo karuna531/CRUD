@@ -12,30 +12,27 @@ function App() {
   const [btnname, setBtnName] = useState("Save");
   const [documentmode, setDocumentMode] = useState("add");
   const [updateData, setUpdateData] = useState([]);
-  const API = 'https://jsonplaceholder.typicode.com';
+  const API = 'http://localhost:4335/api/Contacts';
 
   const [formData, setFormData] = useState({
-    userId: '',
-    id: '',
-    title: '',
-    body: ''
+    fullName: '',
+    phone: '',
+    address: '',
+    email: ''
   })
 
 
   const changeHandler = e => {
     setFormData({ ...formData, [e.target.name]: e.target.value })
   }
-  // useEffect(() => {
-  //   axios.get("https://jsonplaceholder.typicode.com/posts").then((resp) =>
-  //   setMyData(resp.data)).catch((error)=>setIsError(error.message));
-  // }, [])
 
-  //console.log(myData)
   const getData = async () => {
     try {
-      const res = await axios.get(`${API}/posts`)
+      const res = await axios.get(`${API}/GetContacts`)
       //console.log(res.data);
       setMyData(res.data)
+
+
 
     }
     catch (error) {
@@ -43,24 +40,15 @@ function App() {
 
     }
 
-
   }
 
-  // const addPost = async () => {
-  //   const data = { userId, id, title, body };
 
-  //   const response = await axios.post(
-  //     `             ${API}/posts`, data
-  //   );
-  //   setFormData([post, ...posts])
-
-  // }
   const addPost = async (e) => {
     e.preventDefault();
     if (documentmode == "add") {
 
-      //const data = { userId, id, title, body };
-      var resp = await axios.post(`${API}/posts`, formData).then((res) => {
+
+      var resp = await axios.post(`${API}/AddContacts`, formData).then((res) => {
         console.warn("Posting data =", res)
         setMyData([...myData, res.data]);
       })
@@ -71,16 +59,9 @@ function App() {
       const item = formData.id;
       console.warn(item);
 
-      // const data =
-      // {
-      //   userId: item.userId,
-      //   id: item.id,
-      //   title: item.title,
-      //   body: item.body
-      // }
-      // setUpdateData(...updateData, data);
 
-      axios.put(`${API}/posts/${item}`, formData)
+
+      axios.put(`${API}/${item}`, formData)
         .then((response) => {
           console.log(typeof (response.data));
           const tempData = [response.data];
@@ -88,30 +69,29 @@ function App() {
         });
 
     }
+    setBtnName("Save");
+    setDocumentMode("add");
 
 
 
 
-    //console.log(resp.data)
 
-    // //axios.post(`${API}, data `)
 
   }
   function updatePost(id) {
     setBtnName("Update");
     setDocumentMode("edit");
     //console.warn(id, "object =", myData[id - 1]);
-    let item = myData[id - 1];
+    let item = myData[id];
     setFormData(
       {
-        userId: item.userId,
         id: item.id,
-        title: item.title,
-        body: item.body
-      }
+        fullName: item.fullName,
+        phone: item.phone,
+        address: item.address,
+        email: item.email
+      })
 
-    )
-    console.warn(item.title);
   }
   // function Edit() {
   //   // axios.put(`${API}/posts/${id}`, formData)
@@ -124,18 +104,17 @@ function App() {
 
   const Delete = (id) => {
     console.warn(id);
-    axios.delete(`${API}/posts/${id}`).then(response => {
-      console.log("deleted successfully!", id)
-      // setMyData(myData.filter((p) => p.id !== id));
-
-      setMyData(
-        myData.filter((post) => {
-          return post.id !== id;
-        })
-      );
+    axios.delete(`${API}/${id}`)
 
 
-    })
+    setMyData(
+      myData.filter((post) => {
+        return post.id !== id;
+      })
+    );
+
+
+    // })
 
   }
 
@@ -144,18 +123,18 @@ function App() {
 
   useEffect(() => {
     getData();
-  }, [])
+  }, [myData])
   return (
     <div className="App">
 
       {/* {isError != '' && <h2>{isError}</h2>}
       {
           myData.slice(0,12).map((post)=>{
-            const {id,title,body } = post;
+            const {id,address,email } = post;
             return (
               <div className="card" key={id}>
-                <h3>{title.slice(0,10)}</h3>
-                <p>{body}</p>
+                <h3>{address.slice(0,10)}</h3>
+                <p>{email}</p>
               </div>
             )
           })
@@ -164,14 +143,14 @@ function App() {
       {isError != '' && <h2>{isError}</h2>}
       {/* <Button variant="primary" onClick={addPost}>View</Button> */}
       <form>
-        <label>userId</label><br />
-        <input type="text" name='userId' value={formData.userId || ""} onChange={changeHandler} /> <br /><br />
-        <label>Id</label><br />
-        <input type="text" name='id' value={formData.id || ""} onChange={changeHandler} /> <br /><br />
-        <label>Title</label><br />
-        <input type="text" name='title' value={formData.title || ""} onChange={changeHandler} /> <br /><br />
-        <label>Body</label><br />
-        <input type="text" name='body' value={formData.body || ""} onChange={changeHandler} /> <br /><br />
+        <label>fullName</label><br />
+        <input type="text" name='fullName' value={formData.fullName || ""} onChange={changeHandler} /> <br /><br />
+        <label>phone</label><br />
+        <input type="text" name='phone' value={formData.phone || ""} onChange={changeHandler} /> <br /><br />
+        <label>address</label><br />
+        <input type="text" name='address' value={formData.address || ""} onChange={changeHandler} /> <br /><br />
+        <label>email</label><br />
+        <input type="text" name='email' value={formData.email || ""} onChange={changeHandler} /> <br /><br />
         <button type='button' onClick={addPost}>{btnname}</button>
 
       </form>
@@ -180,10 +159,10 @@ function App() {
         <thead>
           <tr>
 
-            <th>userId</th>
-            <th>Id</th>
-            <th>Title</th>
-            <th>Body</th>
+            <th>fullName</th>
+            <th>phone</th>
+            <th>address</th>
+            <th>email</th>
             <th>Action</th>
           </tr>
         </thead>
@@ -191,13 +170,13 @@ function App() {
           {
             myData.map((item, i) => {
               return (<tr key={i}>
-                <td>{item.userId}</td>
-                <td>{item.id}</td>
-                <td>{item.title.slice(0, 7)}</td>
-                <td>{item.body.slice(0, 10)}</td>
+                <td>{item.fullName}</td>
+                <td>{item.phone}</td>
+                <td>{item.address}</td>
+                <td>{item.email}</td>
                 <td>
 
-                  <Button variant="success" onClick={() => updatePost(item.id)}>Edit</Button>&nbsp; &nbsp;
+                  <Button variant="success" onClick={() => updatePost(i)}>Edit</Button>&nbsp; &nbsp;
                   <Button variant="danger" onClick={() => Delete(item.id)} >Remove</Button>
                 </td>
 
